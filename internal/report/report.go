@@ -25,21 +25,31 @@ type DNSResult struct {
 }
 
 type ClientReport struct {
-	GeneratedAt      string                         `json:"generated_at"`
-	Target           string                         `json:"target"`
-	DurationSeconds  int64                          `json:"duration_seconds"`
-	DNS              DNSResult                      `json:"dns"`
-	TCPConnect       map[string]tcp.ConnectResult   `json:"tcp_connect"`
-	TCPStability     map[string]tcp.StabilityResult `json:"tcp_stability"`
-	UDP              map[string]udp.Result          `json:"udp"`
-	HTTP             []httpx.Result                 `json:"http"`
-	WebSocket        websocketx.Result              `json:"websocket"`
-	TLS              tlsprobe.Result                `json:"tls"`
-	Downloads        []download.Result              `json:"downloads"`
-	BestCandidate    string                         `json:"best_candidate"`
-	BestReason       string                         `json:"best_candidate_reason"`
-	RankedCandidates []TransportScore               `json:"ranked_candidates"`
-	Warnings         []string                       `json:"warnings"`
+	GeneratedAt       string                         `json:"generated_at"`
+	Target            string                         `json:"target"`
+	DurationSeconds   int64                          `json:"duration_seconds"`
+	DNS               DNSResult                      `json:"dns"`
+	TCPConnect        map[string]tcp.ConnectResult   `json:"tcp_connect"`
+	TCPStability      map[string]tcp.StabilityResult `json:"tcp_stability"`
+	UDP               map[string]udp.Result          `json:"udp"`
+	HTTP              []httpx.Result                 `json:"http"`
+	WebSocket         websocketx.Result              `json:"websocket"`
+	TLS               tlsprobe.Result                `json:"tls"`
+	Downloads         []download.Result              `json:"downloads"`
+	BestCandidate     string                         `json:"best_candidate_legacy"`
+	BestCandidateInfo BestCandidate                  `json:"best_candidate"`
+	BestReason        string                         `json:"best_candidate_reason"`
+	TransportScores   map[string]TransportScore      `json:"transport_scores"`
+	RankedCandidates  []TransportScore               `json:"ranked_candidates"`
+	Warnings          []string                       `json:"warnings"`
+}
+
+type BestCandidate struct {
+	Transport string `json:"transport"`
+	Candidate string `json:"candidate"`
+	Score     int    `json:"score"`
+	Status    string `json:"status"`
+	Reason    string `json:"reason"`
 }
 
 type TransportScore struct {
@@ -48,6 +58,7 @@ type TransportScore struct {
 	Candidate string `json:"candidate"`
 	Score     int    `json:"score"`
 	Stable    bool   `json:"stable"`
+	Status    string `json:"status"`
 	Reason    string `json:"reason"`
 }
 
@@ -64,6 +75,7 @@ func Print(rep ClientReport) {
 	fmt.Println()
 	fmt.Printf("Target: %s\n", rep.Target)
 	fmt.Printf("Duration: %ds\n\n", rep.DurationSeconds)
+	printSummary(rep)
 	fmt.Println("DNS:")
 	if rep.DNS.Success {
 		fmt.Printf("Status: OK\nResolve time: %s\nIPs: %s\n\n", fmtDur(rep.DNS.ResolveTime), strings.Join(rep.DNS.IPs, ", "))
@@ -134,7 +146,7 @@ func Print(rep ClientReport) {
 			state = "unstable/interrupted"
 		}
 		fmt.Printf(
-			"%s: %s, %.2f MB, %.1f%% complete, avg %s, TTFB %s, interrupted: %v\n",
+			"%s: %s, %.2f MB, %.1f%% complete, avg %s, TTFB %s, interrupted: %v",
 			d.Path,
 			state,
 			float64(d.BytesReceived)/(1<<20),
@@ -143,17 +155,16 @@ func Print(rep ClientReport) {
 			fmtDur(d.TimeToFirstByte),
 			d.Interrupted,
 		)
-	}
-	fmt.Println()
-	fmt.Printf("Best candidate: %s\n", rep.BestCandidate)
-	if rep.BestReason != "" {
-		fmt.Printf("Reason: %s\n", rep.BestReason)
+		if d.InterruptionReason != "" {
+			fmt.Printf(", reason: %s", d.InterruptionReason)
+		}
+		fmt.Println()
 	}
 	fmt.Println()
 	if len(rep.RankedCandidates) > 0 {
 		fmt.Println("Ranked candidates:")
 		for _, c := range rep.RankedCandidates {
-			fmt.Printf("%d. %s: %d/100, %s\n", c.Rank, c.Candidate, c.Score, c.Reason)
+			fmt.Printf("%d. %s - score %d/100 - %s\n", c.Rank, c.Candidate, c.Score, c.Reason)
 		}
 		fmt.Println()
 	}
@@ -163,6 +174,32 @@ func Print(rep ClientReport) {
 			fmt.Println("- " + w)
 		}
 	}
+}
+
+func printSummary(rep ClientReport) {
+	fmt.Println("Summary:")
+	if rep.BestCandidateInfo.Transport != "" {
+		fmt.Printf("Best candidate: %s\n", rep.BestCandidateInfo.Candidate)
+		fmt.Printf("Reason: %s\n", rep.BestCandidateInfo.Reason)
+	} else {
+		fmt.Printf("Best candidate: %s\n", rep.BestCandidate)
+		if rep.BestReason != "" {
+			fmt.Printf("Reason: %s\n", rep.BestReason)
+		}
+	}
+	if len(rep.TransportScores) > 0 {
+		keys := make([]string, 0, len(rep.TransportScores))
+		for k := range rep.TransportScores {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		fmt.Println("Transport scores:")
+		for _, k := range keys {
+			s := rep.TransportScores[k]
+			fmt.Printf("- %s: %d/100, %s\n", s.Transport, s.Score, s.Status)
+		}
+	}
+	fmt.Println()
 }
 
 func sortedKeys[T any](m map[string]T) []string {

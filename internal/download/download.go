@@ -25,6 +25,7 @@ type Result struct {
 	MaxBytesPerSecond     float64       `json:"maximum_observed_bytes_per_second"`
 	Stalled               bool          `json:"stalled"`
 	Interrupted           bool          `json:"interrupted"`
+	InterruptionReason    string        `json:"interruption_reason,omitempty"`
 	SpeedDropAfterBurst   bool          `json:"speed_drop_after_initial_burst"`
 	Error                 string        `json:"error,omitempty"`
 }
@@ -143,6 +144,7 @@ func Run(ctx context.Context, client *http.Client, baseURL, path string, timeout
 		select {
 		case <-stallTimer.C:
 			res.Stalled = true
+			res.InterruptionReason = "client_timeout"
 			res.Error = fmt.Sprintf("no bytes received for %s", timeout)
 			return finish(res, start, total, firstWindow, lastWindow)
 		default:
@@ -166,8 +168,28 @@ func finish(res Result, start time.Time, total int64, firstWindow, lastWindow fl
 			res.Interrupted = true
 		}
 	}
+	if res.Partial && res.InterruptionReason == "" {
+		res.InterruptionReason = classifyInterruption(res.Error)
+	}
 	if firstWindow > 0 && lastWindow > 0 && lastWindow < firstWindow*0.5 {
 		res.SpeedDropAfterBurst = true
 	}
 	return res
+}
+
+func classifyInterruption(err string) string {
+	switch {
+	case err == "":
+		return "server_disconnect"
+	case strings.Contains(strings.ToLower(err), "context deadline") ||
+		strings.Contains(strings.ToLower(err), "client.timeout") ||
+		strings.Contains(strings.ToLower(err), "timeout"):
+		return "client_timeout"
+	case strings.Contains(strings.ToLower(err), "connection reset") ||
+		strings.Contains(strings.ToLower(err), "unexpected eof") ||
+		strings.Contains(strings.ToLower(err), "eof"):
+		return "server_disconnect"
+	default:
+		return "unknown_error"
+	}
 }

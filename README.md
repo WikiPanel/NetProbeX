@@ -196,7 +196,59 @@ Common events:
 
 The client prints a human-readable terminal report and writes a structured JSON report to `output_json`.
 
-The JSON report includes DNS, TCP connect, TCP stability, UDP, HTTP, WebSocket, TLS, download results, warnings, and the best candidate transport path.
+The JSON report includes DNS, TCP connect, TCP stability, UDP, HTTP, WebSocket, TLS, download results, warnings, scoring, and the best candidate transport path.
+
+### Scoring System
+
+NetProbeX scores each measured area from `0` to `100` and labels it as `stable`, `mostly_stable`, `unstable`, `poor`, or `failed`.
+
+Structured scores are written under `transport_scores`:
+
+- `dns`: resolution success and resolution time.
+- `tcp`: repeated connection success plus long-running TCP echo stability.
+- `udp`: packet return rate, packet loss, timeout count, and latency stability.
+- `http`: repeated `/ping` and `/health` success rate, timeout count, latency stability, and download contribution.
+- `websocket`: sustained message exchange, disconnect count, reconnect count, failures, and latency stability.
+- `tls`: handshake success, handshake time, TLS version, cipher suite, and whether a stable `wss://` WebSocket path is also available.
+- `download`: completion percentage, full completion count, partial completion count, stalls, interruptions, and speed drops.
+
+The final ranked candidate list uses selectable transports: WebSocket, HTTP, TLS, Raw TCP, and UDP. DNS is informational, and download stability contributes to HTTP because downloads are HTTP traffic.
+
+Long-running stability is weighted higher than initial connectivity. A TLS handshake alone is capped because it proves that TLS can start, not that sustained traffic remains stable. A stable WebSocket session should rank above raw TCP when raw TCP has drops. UDP with 100% packet loss scores `0` and should not be selected as best.
+
+Download labels are more specific:
+
+- `completed`: all expected bytes were received.
+- `partial`: most bytes were received but the transfer did not fully complete.
+- `unstable/interrupted`: the transfer stalled, was cut off early, or failed.
+
+Download results include `completion_percent`, `partial_completion`, `interrupted`, and `interruption_reason`. Reasons include `client_timeout`, `server_disconnect`, and `unknown_error` when the client can infer them.
+
+Example JSON scoring block:
+
+```json
+{
+  "transport_scores": {
+    "websocket": {
+      "score": 92,
+      "status": "stable",
+      "reason": "WebSocket exchanged 112/112 messages over 120s with 0 disconnects."
+    },
+    "udp": {
+      "score": 0,
+      "status": "failed",
+      "reason": "No UDP echo replies were received."
+    }
+  },
+  "best_candidate": {
+    "transport": "websocket",
+    "candidate": "WebSocket over TLS/443",
+    "score": 92,
+    "status": "stable",
+    "reason": "Sustained message exchange ranked above initial connection success."
+  }
+}
+```
 
 ## Troubleshooting
 
