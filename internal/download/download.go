@@ -18,6 +18,8 @@ type Result struct {
 	TotalDuration         time.Duration `json:"total_duration_ns"`
 	BytesReceived         int64         `json:"bytes_received"`
 	ExpectedBytes         int64         `json:"expected_bytes"`
+	CompletionPercent     float64       `json:"completion_percent"`
+	Partial               bool          `json:"partial_completion"`
 	AverageBytesPerSecond float64       `json:"average_bytes_per_second"`
 	MinBytesPerSecond     float64       `json:"minimum_observed_bytes_per_second"`
 	MaxBytesPerSecond     float64       `json:"maximum_observed_bytes_per_second"`
@@ -155,8 +157,14 @@ func finish(res Result, start time.Time, total int64, firstWindow, lastWindow fl
 	if res.TotalDuration > 0 {
 		res.AverageBytesPerSecond = float64(total) / res.TotalDuration.Seconds()
 	}
-	if res.ExpectedBytes > 0 && total < res.ExpectedBytes {
-		res.Interrupted = true
+	if res.ExpectedBytes > 0 {
+		res.CompletionPercent = float64(total) / float64(res.ExpectedBytes) * 100
+		if total < res.ExpectedBytes {
+			res.Partial = true
+		}
+		if total < int64(float64(res.ExpectedBytes)*0.95) || res.Stalled {
+			res.Interrupted = true
+		}
 	}
 	if firstWindow > 0 && lastWindow > 0 && lastWindow < firstWindow*0.5 {
 		res.SpeedDropAfterBurst = true

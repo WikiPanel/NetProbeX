@@ -1,0 +1,562 @@
+{
+  "generated_at": "2026-05-28T01:15:19.932459Z",
+  "target": "95.182.83.224",
+  "duration_seconds": 120,
+  "dns": {
+    "target": "95.182.83.224",
+    "success": true,
+    "ips": [
+      "95.182.83.224"
+    ],
+    "resolve_time_ns": 19416
+  },
+  "tcp_connect": {
+    "2053": {
+      "port": 2053,
+      "attempts": 25,
+      "successes": 25,
+      "timeouts": 0,
+      "refused": 0,
+      "resets": 0,
+      "errors": 0,
+      "avg_latency_ns": 541337943,
+      "min_latency_ns": 114744667,
+      "max_latency_ns": 2490831042
+    },
+    "2083": {
+      "port": 2083,
+      "attempts": 24,
+      "successes": 24,
+      "timeouts": 0,
+      "refused": 0,
+      "resets": 0,
+      "errors": 0,
+      "avg_latency_ns": 559341454,
+      "min_latency_ns": 109958208,
+      "max_latency_ns": 2484120667
+    },
+    "2096": {
+      "port": 2096,
+      "attempts": 24,
+      "successes": 24,
+      "timeouts": 0,
+      "refused": 0,
+      "resets": 0,
+      "errors": 0,
+      "avg_latency_ns": 561599942,
+      "min_latency_ns": 113662459,
+      "max_latency_ns": 2484329208
+    },
+    "443": {
+      "port": 443,
+      "attempts": 25,
+      "successes": 25,
+      "timeouts": 0,
+      "refused": 0,
+      "resets": 0,
+      "errors": 0,
+      "avg_latency_ns": 540837506,
+      "min_latency_ns": 113236917,
+      "max_latency_ns": 2483238833
+    },
+    "8443": {
+      "port": 8443,
+      "attempts": 24,
+      "successes": 24,
+      "timeouts": 0,
+      "refused": 0,
+      "resets": 0,
+      "errors": 0,
+      "avg_latency_ns": 559149362,
+      "min_latency_ns": 111182500,
+      "max_latency_ns": 2484316459
+    }
+  },
+  "tcp_stability": {
+    "2053": {
+      "port": 2053,
+      "duration_ns": 123240823667,
+      "sent": 6,
+      "received": 2,
+      "drops": 4,
+      "reconnects": 4,
+      "failures": 4,
+      "avg_latency_ns": 517066020,
+      "min_latency_ns": 118864541,
+      "max_latency_ns": 915267500,
+      "latency_spikes": 0,
+      "last_error": "read tcp 192.168.1.107:57856-\u003e95.182.83.224:2053: i/o timeout"
+    },
+    "2083": {
+      "port": 2083,
+      "duration_ns": 123246441166,
+      "sent": 7,
+      "received": 3,
+      "drops": 4,
+      "reconnects": 4,
+      "failures": 4,
+      "avg_latency_ns": 151655902,
+      "min_latency_ns": 111978083,
+      "max_latency_ns": 224832958,
+      "latency_spikes": 0,
+      "last_error": "read tcp 192.168.1.107:57855-\u003e95.182.83.224:2083: i/o timeout"
+    },
+    "2096": {
+      "port": 2096,
+      "duration_ns": 183356391958,
+      "sent": 8,
+      "received": 2,
+      "drops": 6,
+      "reconnects": 6,
+      "failures": 6,
+      "avg_latency_ns": 125220354,
+      "min_latency_ns": 120658875,
+      "max_latency_ns": 129781833,
+      "latency_spikes": 0,
+      "last_error": "read tcp 192.168.1.107:58226-\u003e95.182.83.224:2096: i/o timeout"
+    },
+    "443": {
+      "port": 443,
+      "duration_ns": 122489144666,
+      "sent": 5,
+      "received": 1,
+      "drops": 4,
+      "reconnects": 4,
+      "failures": 4,
+      "avg_latency_ns": 907960542,
+      "min_latency_ns": 907960542,
+      "max_latency_ns": 907960542,
+      "latency_spikes": 0,
+      "last_error": "read tcp 192.168.1.107:57852-\u003e95.182.83.224:443: i/o timeout"
+    },
+    "8443": {
+      "port": 8443,
+      "duration_ns": 164244964166,
+      "sent": 15,
+      "received": 0,
+      "drops": 15,
+      "reconnects": 15,
+      "failures": 15,
+      "avg_latency_ns": 0,
+      "min_latency_ns": 0,
+      "max_latency_ns": 0,
+      "latency_spikes": 0,
+      "last_error": "read tcp 192.168.1.107:58120-\u003e95.182.83.224:8443: i/o timeout"
+    }
+  },
+  "udp": {
+    "2053": {
+      "port": 2053,
+      "sent_packets": 4,
+      "received_packets": 0,
+      "packet_loss_percent": 100,
+      "timeout_count": 4,
+      "avg_latency_ns": 0,
+      "min_latency_ns": 0,
+      "max_latency_ns": 0,
+      "last_error": "read udp 192.168.1.107:55231-\u003e95.182.83.224:2053: i/o timeout"
+    },
+    "443": {
+      "port": 443,
+      "sent_packets": 6,
+      "received_packets": 0,
+      "packet_loss_percent": 100,
+      "timeout_count": 6,
+      "avg_latency_ns": 0,
+      "min_latency_ns": 0,
+      "max_latency_ns": 0,
+      "last_error": "read udp 192.168.1.107:59427-\u003e95.182.83.224:443: i/o timeout"
+    },
+    "8443": {
+      "port": 8443,
+      "sent_packets": 5,
+      "received_packets": 0,
+      "packet_loss_percent": 100,
+      "timeout_count": 5,
+      "avg_latency_ns": 0,
+      "min_latency_ns": 0,
+      "max_latency_ns": 0,
+      "last_error": "read udp 192.168.1.107:56190-\u003e95.182.83.224:8443: i/o timeout"
+    }
+  },
+  "http": [
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 270118875,
+      "time_to_first_byte_ns": 270116708
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 246163459,
+      "time_to_first_byte_ns": 246162084
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 3047106042,
+      "time_to_first_byte_ns": 3047105000
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 3696233708,
+      "time_to_first_byte_ns": 3696230583
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 1129551458,
+      "time_to_first_byte_ns": 1129550833
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 3002797167,
+      "time_to_first_byte_ns": 3002796458
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 6599672708,
+      "time_to_first_byte_ns": 6599669500
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 234309750,
+      "time_to_first_byte_ns": 234308958
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 1069887042,
+      "time_to_first_byte_ns": 1069886250
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 4093156084,
+      "time_to_first_byte_ns": 4093155417
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 3329500416,
+      "time_to_first_byte_ns": 3329500125
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 1740917708,
+      "time_to_first_byte_ns": 1740915500
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 239614917,
+      "time_to_first_byte_ns": 239613542
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 645858750,
+      "time_to_first_byte_ns": 645857666
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 1464834375,
+      "time_to_first_byte_ns": 1464833750
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 1406460292,
+      "time_to_first_byte_ns": 1406457500
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 238537959,
+      "time_to_first_byte_ns": 238534875
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 247671333,
+      "time_to_first_byte_ns": 247667583
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 229716959,
+      "time_to_first_byte_ns": 229713625
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 243739042,
+      "time_to_first_byte_ns": 243736000
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 249917000,
+      "time_to_first_byte_ns": 249913792
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 227695084,
+      "time_to_first_byte_ns": 227691792
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 244501375,
+      "time_to_first_byte_ns": 244497708
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 227443083,
+      "time_to_first_byte_ns": 227440083
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 256618042,
+      "time_to_first_byte_ns": 256614458
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 223670917,
+      "time_to_first_byte_ns": 223667792
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 239865500,
+      "time_to_first_byte_ns": 239862084
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 234380541,
+      "time_to_first_byte_ns": 234376916
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 234974583,
+      "time_to_first_byte_ns": 234971542
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 232637292,
+      "time_to_first_byte_ns": 232634333
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 249009500,
+      "time_to_first_byte_ns": 249006084
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 243392292,
+      "time_to_first_byte_ns": 243388667
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 1012148167,
+      "time_to_first_byte_ns": 1012144500
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 269658584,
+      "time_to_first_byte_ns": 269655834
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 252006375,
+      "time_to_first_byte_ns": 252003042
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 231702958,
+      "time_to_first_byte_ns": 231699333
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 228869625,
+      "time_to_first_byte_ns": 228866292
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 244974625,
+      "time_to_first_byte_ns": 244971125
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 335790708,
+      "time_to_first_byte_ns": 335787666
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 238455709,
+      "time_to_first_byte_ns": 238452459
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 340162041,
+      "time_to_first_byte_ns": 340159500
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 237726709,
+      "time_to_first_byte_ns": 237724042
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 248313417,
+      "time_to_first_byte_ns": 248310375
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 243987709,
+      "time_to_first_byte_ns": 243984292
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 243097041,
+      "time_to_first_byte_ns": 243094208
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 230775917,
+      "time_to_first_byte_ns": 230772625
+    },
+    {
+      "path": "/ping",
+      "status_code": 200,
+      "latency_ns": 261074125,
+      "time_to_first_byte_ns": 261071084
+    },
+    {
+      "path": "/health",
+      "status_code": 200,
+      "latency_ns": 227899042,
+      "time_to_first_byte_ns": 227895375
+    },
+    {
+      "path": "/ping",
+      "status_code": 0,
+      "latency_ns": 0,
+      "time_to_first_byte_ns": 0,
+      "error": "Get \"http://95.182.83.224:8080/ping\": context deadline exceeded"
+    },
+    {
+      "path": "/health",
+      "status_code": 0,
+      "latency_ns": 0,
+      "time_to_first_byte_ns": 0,
+      "error": "Get \"http://95.182.83.224:8080/health\": context deadline exceeded"
+    }
+  ],
+  "websocket": {
+    "url": "ws://95.182.83.224:8081/ws",
+    "duration_ns": 120000207792,
+    "sent_messages": 112,
+    "successful_messages": 112,
+    "failed_messages": 0,
+    "disconnects": 0,
+    "reconnects": 0,
+    "avg_latency_ns": 386768281,
+    "min_latency_ns": 112356583,
+    "max_latency_ns": 8084568875
+  },
+  "tls": {
+    "address": "95.182.83.224:8443",
+    "success": true,
+    "handshake_time_ns": 297783417,
+    "tls_version": "TLS 1.3",
+    "cipher_suite": "TLS_AES_128_GCM_SHA256"
+  },
+  "downloads": [
+    {
+      "path": "/download/1mb",
+      "status_code": 200,
+      "time_to_first_byte_ns": 271369958,
+      "total_duration_ns": 1339593666,
+      "bytes_received": 1048576,
+      "expected_bytes": 1048576,
+      "average_bytes_per_second": 782756.7617059783,
+      "minimum_observed_bytes_per_second": 937320.8077797283,
+      "maximum_observed_bytes_per_second": 937320.8077797283,
+      "stalled": false,
+      "interrupted": false,
+      "speed_drop_after_initial_burst": false
+    },
+    {
+      "path": "/download/10mb",
+      "status_code": 200,
+      "time_to_first_byte_ns": 178652959,
+      "total_duration_ns": 6409165709,
+      "bytes_received": 10485760,
+      "expected_bytes": 10485760,
+      "average_bytes_per_second": 1636056.9340991587,
+      "minimum_observed_bytes_per_second": 909539.7164045561,
+      "maximum_observed_bytes_per_second": 1715278.6302830626,
+      "stalled": false,
+      "interrupted": false,
+      "speed_drop_after_initial_burst": false
+    },
+    {
+      "path": "/download/50mb",
+      "status_code": 200,
+      "time_to_first_byte_ns": 235108000,
+      "total_duration_ns": 30001652709,
+      "bytes_received": 47971181,
+      "expected_bytes": 52428800,
+      "average_bytes_per_second": 1598951.2799609683,
+      "minimum_observed_bytes_per_second": 212872.02082298286,
+      "maximum_observed_bytes_per_second": 1806068.9564150586,
+      "stalled": false,
+      "interrupted": true,
+      "speed_drop_after_initial_burst": false,
+      "error": "context deadline exceeded (Client.Timeout or context cancellation while reading body)"
+    }
+  ],
+  "best_candidate": "TCP/TLS 95.182.83.224:8443",
+  "warnings": [
+    "TCP 443 dropped after real traffic started",
+    "TCP 2053 dropped after real traffic started",
+    "TCP 2083 dropped after real traffic started",
+    "TCP 8443 dropped after real traffic started",
+    "TCP 2096 dropped after real traffic started",
+    "UDP 2053 is unstable",
+    "UDP 8443 is unstable",
+    "UDP 443 is unstable",
+    "Download /download/50mb showed instability"
+  ]
+}

@@ -25,19 +25,30 @@ type DNSResult struct {
 }
 
 type ClientReport struct {
-	GeneratedAt     string                         `json:"generated_at"`
-	Target          string                         `json:"target"`
-	DurationSeconds int64                          `json:"duration_seconds"`
-	DNS             DNSResult                      `json:"dns"`
-	TCPConnect      map[string]tcp.ConnectResult   `json:"tcp_connect"`
-	TCPStability    map[string]tcp.StabilityResult `json:"tcp_stability"`
-	UDP             map[string]udp.Result          `json:"udp"`
-	HTTP            []httpx.Result                 `json:"http"`
-	WebSocket       websocketx.Result              `json:"websocket"`
-	TLS             tlsprobe.Result                `json:"tls"`
-	Downloads       []download.Result              `json:"downloads"`
-	BestCandidate   string                         `json:"best_candidate"`
-	Warnings        []string                       `json:"warnings"`
+	GeneratedAt      string                         `json:"generated_at"`
+	Target           string                         `json:"target"`
+	DurationSeconds  int64                          `json:"duration_seconds"`
+	DNS              DNSResult                      `json:"dns"`
+	TCPConnect       map[string]tcp.ConnectResult   `json:"tcp_connect"`
+	TCPStability     map[string]tcp.StabilityResult `json:"tcp_stability"`
+	UDP              map[string]udp.Result          `json:"udp"`
+	HTTP             []httpx.Result                 `json:"http"`
+	WebSocket        websocketx.Result              `json:"websocket"`
+	TLS              tlsprobe.Result                `json:"tls"`
+	Downloads        []download.Result              `json:"downloads"`
+	BestCandidate    string                         `json:"best_candidate"`
+	BestReason       string                         `json:"best_candidate_reason"`
+	RankedCandidates []TransportScore               `json:"ranked_candidates"`
+	Warnings         []string                       `json:"warnings"`
+}
+
+type TransportScore struct {
+	Rank      int    `json:"rank"`
+	Transport string `json:"transport"`
+	Candidate string `json:"candidate"`
+	Score     int    `json:"score"`
+	Stable    bool   `json:"stable"`
+	Reason    string `json:"reason"`
 }
 
 func WriteJSON(path string, rep ClientReport) error {
@@ -116,13 +127,36 @@ func Print(rep ClientReport) {
 	fmt.Println("Download:")
 	for _, d := range rep.Downloads {
 		state := "completed"
-		if d.Interrupted || d.Stalled || d.Error != "" {
+		if d.Partial && !d.Interrupted && !d.Stalled {
+			state = "partial"
+		}
+		if d.Interrupted || d.Stalled || (d.Error != "" && !d.Partial) {
 			state = "unstable/interrupted"
 		}
-		fmt.Printf("%s: %s, %.2f MB, avg %s, TTFB %s, interrupted: %v\n", d.Path, state, float64(d.BytesReceived)/(1<<20), fmtSpeed(d.AverageBytesPerSecond), fmtDur(d.TimeToFirstByte), d.Interrupted)
+		fmt.Printf(
+			"%s: %s, %.2f MB, %.1f%% complete, avg %s, TTFB %s, interrupted: %v\n",
+			d.Path,
+			state,
+			float64(d.BytesReceived)/(1<<20),
+			d.CompletionPercent,
+			fmtSpeed(d.AverageBytesPerSecond),
+			fmtDur(d.TimeToFirstByte),
+			d.Interrupted,
+		)
 	}
 	fmt.Println()
-	fmt.Printf("Best candidate: %s\n\n", rep.BestCandidate)
+	fmt.Printf("Best candidate: %s\n", rep.BestCandidate)
+	if rep.BestReason != "" {
+		fmt.Printf("Reason: %s\n", rep.BestReason)
+	}
+	fmt.Println()
+	if len(rep.RankedCandidates) > 0 {
+		fmt.Println("Ranked candidates:")
+		for _, c := range rep.RankedCandidates {
+			fmt.Printf("%d. %s: %d/100, %s\n", c.Rank, c.Candidate, c.Score, c.Reason)
+		}
+		fmt.Println()
+	}
 	if len(rep.Warnings) > 0 {
 		fmt.Println("Warnings:")
 		for _, w := range rep.Warnings {

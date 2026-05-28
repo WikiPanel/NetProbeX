@@ -1,0 +1,20 @@
+{
+  "target": "95.182.83.224",
+  "duration_seconds": 120,
+  "timeout_seconds": 30,
+  "tcp_ports": [443, 8443, 2053, 2083, 2096],
+  "udp_ports": [443, 8443, 2053],
+  "http_base_url": "http://95.182.83.224:8080",
+  "websocket_url": "ws://95.182.83.224:8081/ws",
+  "tls_address": "95.182.83.224:8443",
+  "download_tests": [
+    "/download/1mb",
+    "/download/10mb",
+    "/download/50mb"
+  ],
+  "output_json": "netprobex-report.iran-direct-v2.json",
+  "allow_insecure_tls": true,
+  "http_interval_seconds": 5,
+  "tcp_interval_seconds": 5,
+  "download_repeat": false
+}

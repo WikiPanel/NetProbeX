@@ -13,4 +13,5 @@ netprobex-report.json
 
 # Temporary files
 tmp/
+.gocache/
 *.tmp

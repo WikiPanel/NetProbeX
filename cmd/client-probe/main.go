@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -90,6 +91,7 @@ func main() {
 	}
 	rep.DNS = runDNS(cfg.Target, timeout)
 	httpClient := httpx.NewClient(timeout, cfg.AllowInsecureTLS)
+	downloadClient := httpx.NewClient(0, cfg.AllowInsecureTLS)
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
@@ -166,7 +168,7 @@ func main() {
 		defer wg.Done()
 		for {
 			for _, p := range cfg.DownloadTests {
-				r := download.Run(ctx, httpClient, cfg.HTTPBaseURL, normalizeDownload(p), timeout)
+				r := download.Run(ctx, downloadClient, cfg.HTTPBaseURL, normalizeDownload(p), timeout)
 				mu.Lock()
 				rep.Downloads = append(rep.Downloads, r)
 				mu.Unlock()
@@ -183,7 +185,7 @@ func main() {
 	}()
 
 	wg.Wait()
-	rep.BestCandidate, rep.Warnings = assess(rep)
+	rep.BestCandidate, rep.BestReason, rep.RankedCandidates, rep.Warnings = assess(rep)
 	if err := report.WriteJSON(cfg.OutputJSON, rep); err != nil {
 		fatal(err)
 	}
@@ -206,16 +208,10 @@ func runDNS(target string, timeout time.Duration) report.DNSResult {
 	return res
 }
 
-func assess(rep report.ClientReport) (string, []string) {
+func assess(rep report.ClientReport) (string, string, []report.TransportScore, []string) {
 	var warnings []string
-	best := "none"
 	for port, s := range rep.TCPStability {
-		c := rep.TCPConnect[port]
-		if c.Successes > 0 && s.Received > 0 && s.Drops == 0 && s.Failures == 0 {
-			best = "TCP " + port
-			break
-		}
-		if s.Drops > 0 {
+		if s.Drops > 0 || s.Failures > 0 {
 			warnings = append(warnings, "TCP "+port+" dropped after real traffic started")
 		}
 	}
@@ -224,18 +220,217 @@ func assess(rep report.ClientReport) (string, []string) {
 			warnings = append(warnings, "UDP "+port+" is unstable")
 		}
 	}
-	if rep.TLS.Success && (best == "none" || strings.Contains(rep.TLS.Address, ":443")) {
-		best = "TCP/TLS " + rep.TLS.Address
-	}
 	if rep.WebSocket.Disconnects > 0 {
 		warnings = append(warnings, "WebSocket dropped after real traffic started")
 	}
 	for _, d := range rep.Downloads {
 		if d.Stalled || d.Interrupted || d.SpeedDropAfterBurst {
 			warnings = append(warnings, "Download "+d.Path+" showed instability")
+		} else if d.Partial {
+			warnings = append(warnings, "Download "+d.Path+" completed partially but transferred most expected bytes")
 		}
 	}
-	return best, warnings
+
+	ranked := []report.TransportScore{
+		scoreWebSocket(rep),
+		scoreHTTP(rep),
+		scoreTLS(rep),
+		scoreRawTCP(rep),
+		scoreUDP(rep),
+	}
+	preference := map[string]int{
+		"WebSocket": 0,
+		"HTTP":      1,
+		"TLS":       2,
+		"Raw TCP":   3,
+		"UDP":       4,
+	}
+	sort.SliceStable(ranked, func(i, j int) bool {
+		if ranked[i].Score == ranked[j].Score {
+			return preference[ranked[i].Transport] < preference[ranked[j].Transport]
+		}
+		return ranked[i].Score > ranked[j].Score
+	})
+	for i := range ranked {
+		ranked[i].Rank = i + 1
+	}
+	if len(ranked) == 0 || ranked[0].Score == 0 {
+		return "none", "No transport produced stable measured traffic.", ranked, warnings
+	}
+	return ranked[0].Candidate, ranked[0].Reason, ranked, warnings
+}
+
+func scoreWebSocket(rep report.ClientReport) report.TransportScore {
+	ws := rep.WebSocket
+	score := 0
+	reason := "No WebSocket messages were exchanged."
+	if ws.Sent > 0 {
+		delivery := ratio(ws.Received, ws.Sent)
+		score = int(delivery * 80)
+		if ws.Received >= int(rep.DurationSeconds/2) {
+			score += 15
+		} else if ws.Received > 0 {
+			score += 8
+		}
+		if ws.Disconnects == 0 && ws.Failed == 0 {
+			score += 5
+		}
+		score -= ws.Disconnects * 20
+		score -= ws.Failed * 10
+		score -= ws.Reconnects * 5
+		score = clamp(score)
+		reason = fmt.Sprintf("WebSocket delivered %d/%d long-running messages with %d disconnects.", ws.Received, ws.Sent, ws.Disconnects)
+	}
+	return report.TransportScore{
+		Transport: "WebSocket",
+		Candidate: "WebSocket",
+		Score:     score,
+		Stable:    score >= 70 && ws.Sent > 0 && ws.Disconnects == 0 && ratio(ws.Received, ws.Sent) >= 0.95,
+		Reason:    reason,
+	}
+}
+
+func scoreHTTP(rep report.ClientReport) report.TransportScore {
+	ok, total := 0, len(rep.HTTP)
+	for _, h := range rep.HTTP {
+		if h.Error == "" && h.StatusCode >= 200 && h.StatusCode < 300 {
+			ok++
+		}
+	}
+	pingScore := 0
+	if total > 0 {
+		pingScore = int(ratio(ok, total) * 40)
+	}
+	downloadScore := 0
+	stableDownloads := 0
+	var avgCompletion float64
+	if len(rep.Downloads) > 0 {
+		for _, d := range rep.Downloads {
+			completion := d.CompletionPercent
+			if completion == 0 && d.ExpectedBytes == 0 && d.BytesReceived > 0 {
+				completion = 100
+			}
+			if completion > 100 {
+				completion = 100
+			}
+			avgCompletion += completion
+			if !d.Interrupted && !d.Stalled && (d.Error == "" || d.Partial) {
+				stableDownloads++
+			}
+		}
+		avgCompletion /= float64(len(rep.Downloads))
+		downloadScore = int(avgCompletion/100*35) + int(ratio(stableDownloads, len(rep.Downloads))*25)
+	}
+	score := clamp(pingScore + downloadScore)
+	reason := fmt.Sprintf("HTTP passed %d/%d ping/health checks", ok, total)
+	if len(rep.Downloads) > 0 {
+		reason += fmt.Sprintf(" and had %d/%d stable downloads", stableDownloads, len(rep.Downloads))
+	}
+	reason += "."
+	return report.TransportScore{
+		Transport: "HTTP",
+		Candidate: "HTTP",
+		Score:     score,
+		Stable:    score >= 70,
+		Reason:    reason,
+	}
+}
+
+func scoreTLS(rep report.ClientReport) report.TransportScore {
+	if !rep.TLS.Success {
+		reason := "TLS handshake failed."
+		if rep.TLS.Error != "" {
+			reason = "TLS handshake failed: " + rep.TLS.Error
+		}
+		return report.TransportScore{Transport: "TLS", Candidate: "TLS", Score: 0, Stable: false, Reason: reason}
+	}
+	return report.TransportScore{
+		Transport: "TLS",
+		Candidate: "TLS " + rep.TLS.Address,
+		Score:     62,
+		Stable:    false,
+		Reason:    "TLS handshake succeeded, but no long-running TLS traffic stability was measured.",
+	}
+}
+
+func scoreRawTCP(rep report.ClientReport) report.TransportScore {
+	best := report.TransportScore{Transport: "Raw TCP", Candidate: "Raw TCP", Score: 0, Reason: "No raw TCP port completed stable echo traffic."}
+	for port, c := range rep.TCPConnect {
+		s := rep.TCPStability[port]
+		score := 0
+		if c.Attempts > 0 {
+			score += int(ratio(c.Successes, c.Attempts) * 25)
+		}
+		if s.Sent > 0 {
+			score += int(ratio(s.Received, s.Sent) * 55)
+			if s.Drops == 0 && s.Failures == 0 {
+				score += 15
+			}
+		}
+		score -= s.Drops * 12
+		score -= s.Failures * 8
+		score -= c.Timeouts * 4
+		score -= c.Resets * 4
+		score = clamp(score)
+		candidate := "Raw TCP " + port
+		reason := fmt.Sprintf("Raw TCP %s had %d/%d connect successes and %d/%d echo replies with %d drops.", port, c.Successes, c.Attempts, s.Received, s.Sent, s.Drops)
+		if score > best.Score {
+			best = report.TransportScore{
+				Transport: "Raw TCP",
+				Candidate: candidate,
+				Score:     score,
+				Stable:    score >= 70 && s.Sent > 0 && s.Drops == 0 && s.Failures == 0,
+				Reason:    reason,
+			}
+		}
+	}
+	return best
+}
+
+func scoreUDP(rep report.ClientReport) report.TransportScore {
+	best := report.TransportScore{Transport: "UDP", Candidate: "UDP", Score: 0, Reason: "No UDP echo replies were received."}
+	for port, u := range rep.UDP {
+		score := 0
+		if u.Sent > 0 && u.Received > 0 {
+			score = int(ratio(u.Received, u.Sent) * 80)
+			if u.PacketLossPct <= 1 {
+				score += 15
+			} else if u.PacketLossPct <= 5 {
+				score += 8
+			}
+			score -= u.Timeouts * 5
+		}
+		score = clamp(score)
+		candidate := "UDP " + port
+		reason := fmt.Sprintf("UDP %s received %d/%d packets with %.1f%% loss.", port, u.Received, u.Sent, u.PacketLossPct)
+		if score > best.Score {
+			best = report.TransportScore{
+				Transport: "UDP",
+				Candidate: candidate,
+				Score:     score,
+				Stable:    score >= 70 && u.PacketLossPct <= 5,
+				Reason:    reason,
+			}
+		}
+	}
+	return best
+}
+
+func ratio(good, total int) float64 {
+	if total <= 0 {
+		return 0
+	}
+	return float64(good) / float64(total)
+}
+
+func clamp(n int) int {
+	if n < 0 {
+		return 0
+	}
+	if n > 100 {
+		return 100
+	}
+	return n
 }
 
 func normalizeDownload(s string) string {

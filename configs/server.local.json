@@ -1,0 +1,13 @@
+{
+  "tcp_ports": [18080, 18443, 12053, 12083, 12096],
+  "udp_ports": [18080, 18443, 12053],
+  "http_port": 19080,
+  "websocket_port": 19081,
+  "tls_port": 19443,
+  "tls_cert_file": "",
+  "tls_key_file": "",
+  "log_file": "server.local.jsonl",
+  "read_timeout_seconds": 10,
+  "write_timeout_seconds": 10,
+  "shutdown_timeout_seconds": 10
+}

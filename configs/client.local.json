@@ -1,0 +1,19 @@
+{
+  "target": "127.0.0.1",
+  "duration_seconds": 60,
+  "timeout_seconds": 5,
+  "tcp_ports": [18080, 18443, 12053, 12083, 12096],
+  "udp_ports": [18080, 18443, 12053],
+  "http_base_url": "http://127.0.0.1:19080",
+  "websocket_url": "ws://127.0.0.1:19081/ws",
+  "tls_address": "127.0.0.1:19443",
+  "download_tests": [
+    "/download/1mb",
+    "/download/10mb"
+  ],
+  "output_json": "netprobex-report.local.json",
+  "allow_insecure_tls": true,
+  "http_interval_seconds": 5,
+  "tcp_interval_seconds": 5,
+  "download_repeat": false
+}
