@@ -94,12 +94,12 @@ func loadOrGenerateCert(certFile, keyFile string) (tls.Certificate, error) {
 	}
 	serial, _ := rand.Int(rand.Reader, big.NewInt(1<<62))
 	tpl := x509.Certificate{
-		SerialNumber: serial,
-		Subject: pkix.Name{CommonName: "NetProbeX self-signed"},
-		NotBefore: time.Now().Add(-time.Hour),
-		NotAfter: time.Now().Add(365 * 24 * time.Hour),
-		KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		SerialNumber:          serial,
+		Subject:               pkix.Name{CommonName: "NetProbeX self-signed"},
+		NotBefore:             time.Now().Add(-time.Hour),
+		NotAfter:              time.Now().Add(365 * 24 * time.Hour),
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
 	der, err := x509.CreateCertificate(rand.Reader, &tpl, &tpl, &key.PublicKey, key)

@@ -23,16 +23,16 @@ type ProtocolStats struct {
 }
 
 type Snapshot struct {
-	UptimeSeconds               int64                `json:"uptime_seconds"`
-	ActiveTCPConnections        int64                `json:"active_tcp_connections"`
-	ActiveWebSocketConnections  int64                `json:"active_websocket_connections"`
-	TCPConnectionCount          int64                `json:"tcp_connection_count"`
-	UDPPacketCount              int64                `json:"udp_packet_count"`
-	HTTPRequestCount            int64                `json:"http_request_count"`
-	DownloadCount               int64                `json:"download_count"`
-	FailedDownloadCount         int64                `json:"failed_interrupted_download_count"`
-	PerPort                     map[string]PortStats `json:"per_port_stats"`
-	PerProtocol                 ProtocolStats        `json:"per_protocol_stats"`
+	UptimeSeconds              int64                `json:"uptime_seconds"`
+	ActiveTCPConnections       int64                `json:"active_tcp_connections"`
+	ActiveWebSocketConnections int64                `json:"active_websocket_connections"`
+	TCPConnectionCount         int64                `json:"tcp_connection_count"`
+	UDPPacketCount             int64                `json:"udp_packet_count"`
+	HTTPRequestCount           int64                `json:"http_request_count"`
+	DownloadCount              int64                `json:"download_count"`
+	FailedDownloadCount        int64                `json:"failed_interrupted_download_count"`
+	PerPort                    map[string]PortStats `json:"per_port_stats"`
+	PerProtocol                ProtocolStats        `json:"per_protocol_stats"`
 }
 
 type ServerStats struct {

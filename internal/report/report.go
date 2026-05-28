@@ -25,19 +25,19 @@ type DNSResult struct {
 }
 
 type ClientReport struct {
-	GeneratedAt       string                         `json:"generated_at"`
-	Target            string                         `json:"target"`
-	DurationSeconds   int64                          `json:"duration_seconds"`
-	DNS               DNSResult                      `json:"dns"`
-	TCPConnect        map[string]tcp.ConnectResult   `json:"tcp_connect"`
-	TCPStability      map[string]tcp.StabilityResult `json:"tcp_stability"`
-	UDP               map[string]udp.Result          `json:"udp"`
-	HTTP              []httpx.Result                 `json:"http"`
-	WebSocket         websocketx.Result              `json:"websocket"`
-	TLS               tlsprobe.Result                `json:"tls"`
-	Downloads         []download.Result              `json:"downloads"`
-	BestCandidate     string                         `json:"best_candidate"`
-	Warnings          []string                       `json:"warnings"`
+	GeneratedAt     string                         `json:"generated_at"`
+	Target          string                         `json:"target"`
+	DurationSeconds int64                          `json:"duration_seconds"`
+	DNS             DNSResult                      `json:"dns"`
+	TCPConnect      map[string]tcp.ConnectResult   `json:"tcp_connect"`
+	TCPStability    map[string]tcp.StabilityResult `json:"tcp_stability"`
+	UDP             map[string]udp.Result          `json:"udp"`
+	HTTP            []httpx.Result                 `json:"http"`
+	WebSocket       websocketx.Result              `json:"websocket"`
+	TLS             tlsprobe.Result                `json:"tls"`
+	Downloads       []download.Result              `json:"downloads"`
+	BestCandidate   string                         `json:"best_candidate"`
+	Warnings        []string                       `json:"warnings"`
 }
 
 func WriteJSON(path string, rep ClientReport) error {

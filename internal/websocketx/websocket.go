@@ -24,18 +24,18 @@ import (
 const wsGUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 type Result struct {
-	URL           string        `json:"url"`
-	Duration      time.Duration `json:"duration_ns"`
-	Sent          int           `json:"sent_messages"`
-	Received      int           `json:"successful_messages"`
-	Failed        int           `json:"failed_messages"`
-	Disconnects   int           `json:"disconnects"`
-	Reconnects    int           `json:"reconnects"`
-	AvgLatency    time.Duration `json:"avg_latency_ns"`
-	MinLatency    time.Duration `json:"min_latency_ns"`
-	MaxLatency    time.Duration `json:"max_latency_ns"`
-	CloseReason   string        `json:"close_reason,omitempty"`
-	Error         string        `json:"error,omitempty"`
+	URL         string        `json:"url"`
+	Duration    time.Duration `json:"duration_ns"`
+	Sent        int           `json:"sent_messages"`
+	Received    int           `json:"successful_messages"`
+	Failed      int           `json:"failed_messages"`
+	Disconnects int           `json:"disconnects"`
+	Reconnects  int           `json:"reconnects"`
+	AvgLatency  time.Duration `json:"avg_latency_ns"`
+	MinLatency  time.Duration `json:"min_latency_ns"`
+	MaxLatency  time.Duration `json:"max_latency_ns"`
+	CloseReason string        `json:"close_reason,omitempty"`
+	Error       string        `json:"error,omitempty"`
 }
 
 type Conn struct {
@@ -217,7 +217,12 @@ func RunStability(ctx context.Context, raw string, timeout time.Duration, insecu
 	}
 }
 
-func (ws *Conn) Close() error { if ws == nil || ws.c == nil { return nil }; return ws.c.Close() }
+func (ws *Conn) Close() error {
+	if ws == nil || ws.c == nil {
+		return nil
+	}
+	return ws.c.Close()
+}
 
 func (ws *Conn) ReadFrame() (byte, []byte, error) {
 	h := make([]byte, 2)
@@ -229,16 +234,22 @@ func (ws *Conn) ReadFrame() (byte, []byte, error) {
 	l := uint64(h[1] & 0x7f)
 	if l == 126 {
 		var b [2]byte
-		if _, err := io.ReadFull(ws.reader, b[:]); err != nil { return 0, nil, err }
+		if _, err := io.ReadFull(ws.reader, b[:]); err != nil {
+			return 0, nil, err
+		}
 		l = uint64(binary.BigEndian.Uint16(b[:]))
 	} else if l == 127 {
 		var b [8]byte
-		if _, err := io.ReadFull(ws.reader, b[:]); err != nil { return 0, nil, err }
+		if _, err := io.ReadFull(ws.reader, b[:]); err != nil {
+			return 0, nil, err
+		}
 		l = binary.BigEndian.Uint64(b[:])
 	}
 	var mask [4]byte
 	if masked {
-		if _, err := io.ReadFull(ws.reader, mask[:]); err != nil { return 0, nil, err }
+		if _, err := io.ReadFull(ws.reader, mask[:]); err != nil {
+			return 0, nil, err
+		}
 	}
 	if l > 64*1024*1024 {
 		return 0, nil, fmt.Errorf("websocket frame too large: %d", l)

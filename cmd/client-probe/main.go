@@ -44,12 +44,16 @@ func main() {
 	}
 	if tcpFlag != "" {
 		ports, err := config.ParsePorts(tcpFlag)
-		if err != nil { fatal(err) }
+		if err != nil {
+			fatal(err)
+		}
 		cfg.TCPPorts = ports
 	}
 	if udpFlag != "" {
 		ports, err := config.ParsePorts(udpFlag)
-		if err != nil { fatal(err) }
+		if err != nil {
+			fatal(err)
+		}
 		cfg.UDPPorts = ports
 	}
 	if dlFlag != "" {
@@ -77,12 +81,12 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 	rep := report.ClientReport{
-		GeneratedAt: time.Now().UTC().Format(time.RFC3339Nano),
-		Target: cfg.Target,
+		GeneratedAt:     time.Now().UTC().Format(time.RFC3339Nano),
+		Target:          cfg.Target,
 		DurationSeconds: int64(duration.Seconds()),
-		TCPConnect: map[string]tcp.ConnectResult{},
-		TCPStability: map[string]tcp.StabilityResult{},
-		UDP: map[string]udp.Result{},
+		TCPConnect:      map[string]tcp.ConnectResult{},
+		TCPStability:    map[string]tcp.StabilityResult{},
+		UDP:             map[string]udp.Result{},
 	}
 	rep.DNS = runDNS(cfg.Target, timeout)
 	httpClient := httpx.NewClient(timeout, cfg.AllowInsecureTLS)
@@ -96,12 +100,16 @@ func main() {
 		go func() {
 			defer wg.Done()
 			r := tcp.RunConnectLoop(ctx, cfg.Target, port, timeout, interval(cfg.TCPIntervalSeconds, 5))
-			mu.Lock(); rep.TCPConnect[key] = r; mu.Unlock()
+			mu.Lock()
+			rep.TCPConnect[key] = r
+			mu.Unlock()
 		}()
 		go func() {
 			defer wg.Done()
 			r := tcp.RunStability(ctx, cfg.Target, port, timeout)
-			mu.Lock(); rep.TCPStability[key] = r; mu.Unlock()
+			mu.Lock()
+			rep.TCPStability[key] = r
+			mu.Unlock()
 		}()
 	}
 	for _, port := range cfg.UDPPorts {
@@ -111,7 +119,9 @@ func main() {
 		go func() {
 			defer wg.Done()
 			r := udp.RunEcho(ctx, cfg.Target, port, timeout)
-			mu.Lock(); rep.UDP[key] = r; mu.Unlock()
+			mu.Lock()
+			rep.UDP[key] = r
+			mu.Unlock()
 		}()
 	}
 	wg.Add(1)
@@ -122,7 +132,9 @@ func main() {
 		for {
 			for _, p := range []string{"/ping", "/health"} {
 				r := httpx.Get(ctx, httpClient, cfg.HTTPBaseURL, p)
-				mu.Lock(); rep.HTTP = append(rep.HTTP, r); mu.Unlock()
+				mu.Lock()
+				rep.HTTP = append(rep.HTTP, r)
+				mu.Unlock()
 			}
 			select {
 			case <-ctx.Done():
@@ -135,14 +147,18 @@ func main() {
 	go func() {
 		defer wg.Done()
 		r := websocketx.RunStability(ctx, cfg.WebSocketURL, timeout, cfg.AllowInsecureTLS)
-		mu.Lock(); rep.WebSocket = r; mu.Unlock()
+		mu.Lock()
+		rep.WebSocket = r
+		mu.Unlock()
 	}()
 	if cfg.TLSAddress != "" {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			r := tlsprobe.Run(ctx, cfg.TLSAddress, timeout, cfg.AllowInsecureTLS)
-			mu.Lock(); rep.TLS = r; mu.Unlock()
+			mu.Lock()
+			rep.TLS = r
+			mu.Unlock()
 		}()
 	}
 	wg.Add(1)
@@ -151,7 +167,9 @@ func main() {
 		for {
 			for _, p := range cfg.DownloadTests {
 				r := download.Run(ctx, httpClient, cfg.HTTPBaseURL, normalizeDownload(p), timeout)
-				mu.Lock(); rep.Downloads = append(rep.Downloads, r); mu.Unlock()
+				mu.Lock()
+				rep.Downloads = append(rep.Downloads, r)
+				mu.Unlock()
 			}
 			if !cfg.DownloadRepeat {
 				return

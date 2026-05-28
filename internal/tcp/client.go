@@ -10,17 +10,17 @@ import (
 )
 
 type ConnectResult struct {
-	Port        int           `json:"port"`
-	Attempts    int           `json:"attempts"`
-	Successes   int           `json:"successes"`
-	Timeouts    int           `json:"timeouts"`
-	Refused     int           `json:"refused"`
-	Resets      int           `json:"resets"`
-	Errors      int           `json:"errors"`
-	AvgLatency  time.Duration `json:"avg_latency_ns"`
-	MinLatency  time.Duration `json:"min_latency_ns"`
-	MaxLatency  time.Duration `json:"max_latency_ns"`
-	LastError   string        `json:"last_error,omitempty"`
+	Port       int           `json:"port"`
+	Attempts   int           `json:"attempts"`
+	Successes  int           `json:"successes"`
+	Timeouts   int           `json:"timeouts"`
+	Refused    int           `json:"refused"`
+	Resets     int           `json:"resets"`
+	Errors     int           `json:"errors"`
+	AvgLatency time.Duration `json:"avg_latency_ns"`
+	MinLatency time.Duration `json:"min_latency_ns"`
+	MaxLatency time.Duration `json:"max_latency_ns"`
+	LastError  string        `json:"last_error,omitempty"`
 }
 
 type StabilityResult struct {

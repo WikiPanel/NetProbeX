@@ -1,0 +1,16 @@
+# Build outputs
+dist/
+client-probe
+server-agent
+
+# macOS
+.DS_Store
+
+# Logs and reports
+*.log
+*.jsonl
+netprobex-report.json
+
+# Temporary files
+tmp/
+*.tmp

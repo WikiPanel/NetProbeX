@@ -11,34 +11,34 @@ import (
 )
 
 type ServerConfig struct {
-	TCPPorts          []int  `json:"tcp_ports"`
-	UDPPorts          []int  `json:"udp_ports"`
-	HTTPPort          int    `json:"http_port"`
-	WebSocketPort     int    `json:"websocket_port"`
-	TLSPort           int    `json:"tls_port"`
-	TLSCertFile       string `json:"tls_cert_file"`
-	TLSKeyFile        string `json:"tls_key_file"`
-	LogFile           string `json:"log_file"`
-	ReadTimeoutSec    int    `json:"read_timeout_seconds"`
-	WriteTimeoutSec   int    `json:"write_timeout_seconds"`
-	ShutdownTimeoutSec int   `json:"shutdown_timeout_seconds"`
+	TCPPorts           []int  `json:"tcp_ports"`
+	UDPPorts           []int  `json:"udp_ports"`
+	HTTPPort           int    `json:"http_port"`
+	WebSocketPort      int    `json:"websocket_port"`
+	TLSPort            int    `json:"tls_port"`
+	TLSCertFile        string `json:"tls_cert_file"`
+	TLSKeyFile         string `json:"tls_key_file"`
+	LogFile            string `json:"log_file"`
+	ReadTimeoutSec     int    `json:"read_timeout_seconds"`
+	WriteTimeoutSec    int    `json:"write_timeout_seconds"`
+	ShutdownTimeoutSec int    `json:"shutdown_timeout_seconds"`
 }
 
 type ClientConfig struct {
-	Target             string   `json:"target"`
-	DurationSeconds    int      `json:"duration_seconds"`
-	TimeoutSeconds     int      `json:"timeout_seconds"`
-	TCPPorts           []int    `json:"tcp_ports"`
-	UDPPorts           []int    `json:"udp_ports"`
-	HTTPBaseURL        string   `json:"http_base_url"`
-	WebSocketURL       string   `json:"websocket_url"`
-	TLSAddress         string   `json:"tls_address"`
-	DownloadTests      []string `json:"download_tests"`
-	OutputJSON         string   `json:"output_json"`
-	AllowInsecureTLS   bool     `json:"allow_insecure_tls"`
-	HTTPIntervalSeconds int     `json:"http_interval_seconds"`
-	TCPIntervalSeconds  int     `json:"tcp_interval_seconds"`
-	DownloadRepeat     bool     `json:"download_repeat"`
+	Target              string   `json:"target"`
+	DurationSeconds     int      `json:"duration_seconds"`
+	TimeoutSeconds      int      `json:"timeout_seconds"`
+	TCPPorts            []int    `json:"tcp_ports"`
+	UDPPorts            []int    `json:"udp_ports"`
+	HTTPBaseURL         string   `json:"http_base_url"`
+	WebSocketURL        string   `json:"websocket_url"`
+	TLSAddress          string   `json:"tls_address"`
+	DownloadTests       []string `json:"download_tests"`
+	OutputJSON          string   `json:"output_json"`
+	AllowInsecureTLS    bool     `json:"allow_insecure_tls"`
+	HTTPIntervalSeconds int      `json:"http_interval_seconds"`
+	TCPIntervalSeconds  int      `json:"tcp_interval_seconds"`
+	DownloadRepeat      bool     `json:"download_repeat"`
 }
 
 func DefaultServer() ServerConfig {

@@ -108,7 +108,10 @@ func Run(ctx context.Context, client *http.Client, baseURL, path string, timeout
 			total += int64(n)
 			windowBytes += int64(n)
 			if !stallTimer.Stop() {
-				select { case <-stallTimer.C: default: }
+				select {
+				case <-stallTimer.C:
+				default:
+				}
 			}
 			stallTimer.Reset(timeout)
 		}
