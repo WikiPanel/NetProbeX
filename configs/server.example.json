@@ -1,0 +1,13 @@
+{
+  "tcp_ports": [443, 8443, 2053, 2083, 2096],
+  "udp_ports": [443, 8443, 2053],
+  "http_port": 8080,
+  "websocket_port": 8081,
+  "tls_port": 8443,
+  "tls_cert_file": "",
+  "tls_key_file": "",
+  "log_file": "/var/log/netprobex/server.jsonl",
+  "read_timeout_seconds": 10,
+  "write_timeout_seconds": 10,
+  "shutdown_timeout_seconds": 10
+}

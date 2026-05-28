@@ -1,0 +1,17 @@
+[Unit]
+Description=NetProbeX Server Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/netprobex/server-agent --config /opt/netprobex/server.json
+Restart=on-failure
+RestartSec=3
+User=root
+Group=root
+LimitNOFILE=1048576
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
